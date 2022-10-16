@@ -1,15 +1,17 @@
 
 import time
-
 from ppadb.client import Client as AdbClient
+import os
 
 path_file = ('cd Pass-to-E.V.A.')
 start_file = ('python main.py')
 swipe_down = '882 35 882 400 10'  # x y
 swipe_up = '882 1900 882 35 10'
 tap_vpn = '336 541'
+tap_wifi = '759 562'
 check_file = ('cat all_info.txt')
 text = ('1')
+on_sshd = 'sshd'
 
 def connect():
     client = AdbClient(host="127.0.0.1", port=5037) # Default is "127.0.0.1" and 5037
@@ -53,9 +55,19 @@ def end():
     time.sleep(1)
     device.shell(f'input text "{check_file}"')
     device.shell('input keyevent 66')
+    device.shell(f'input swipe {swipe_down}')
+    device.shell(f'input tap {tap_wifi}')
+    device.shell(f'input tap {tap_vpn}')
+    time.sleep(10)
+    device.shell(f'input swipe {swipe_up}')
+    time.sleep(5)
+    device.shell(f'input text "{on_sshd}"')
+    device.shell('input keyevent 66')
+    time.sleep(3)
+    os.system('ansible all -m ping')
+    os.system('ansible all -m fetch -a "src=/data/data/com.termux/files/home/Pass-to-E.V.A./all_info.txt dest=/home/nikita/ flat=yes" ')
 
-if __name__ == '__main__':
-    device, client = connect()
+def main():
     search_file()
     time.sleep(4)
     start_time = time.monotonic()
@@ -64,4 +76,7 @@ if __name__ == '__main__':
     time.sleep(1)
     end()
 
+if __name__ == '__main__':
+    device, client = connect()
+    main()
 
